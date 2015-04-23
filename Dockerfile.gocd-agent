@@ -2,8 +2,11 @@
 FROM phusion/baseimage:0.9.16
 MAINTAINER Aravind SV <arvind.sv@gmail.com>
 
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 
+RUN sh -c "echo deb https://get.docker.com/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
+
 RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh
-RUN apt-get update && apt-get install -y -q unzip openjdk-7-jre-headless git
+RUN apt-get update && apt-get install -y -q unzip openjdk-7-jre-headless git lxc-docker
 
 RUN mkdir /etc/service/go-agent
 ADD gocd-agent/go-agent-start.sh /etc/service/go-agent/run
@@ -14,6 +17,8 @@ WORKDIR /tmp
 RUN dpkg -i /tmp/go-agent.deb
 RUN sed -i -e 's/DAEMON=Y/DAEMON=N/' /etc/default/go-agent /etc/default/go-agent
 
+
+RUN groupapp docker ; gpasswd -a go docker
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 CMD ["/sbin/my_init"]
