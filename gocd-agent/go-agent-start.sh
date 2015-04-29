@@ -17,5 +17,5 @@ AGENT_KEY="${AGENT_KEY:-123456789abcdef}"
 echo "agent.auto.register.key=$AGENT_KEY" >/var/lib/go-agent/config/autoregister.properties
 if [ -n "$AGENT_RESOURCES" ]; then echo "agent.auto.register.resources=$AGENT_RESOURCES" >>/var/lib/go-agent/config/autoregister.properties; fi
 
-service docker start
+wrapdocker
 /sbin/setuser go /etc/init.d/go-agent start
