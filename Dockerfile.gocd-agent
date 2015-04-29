@@ -3,11 +3,17 @@ FROM phusion/baseimage:0.9.16
 MAINTAINER Aravind SV <arvind.sv@gmail.com>
 
 RUN sed -i 's/archive.ubuntu.com/mirror.ovh.net/' /etc/apt/sources.list
+
+#Docker install
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
 RUN sh -c "echo deb https://get.docker.com/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
+RUN apt-get update && apt-get install -y -q apt-transport-https ca-certificates curl iptables apparmor
+RUN apt-get -y -q install lxc-docker
+ADD gocd-agent/wrapdocker /usr/local/bin/wrapdocker
+RUN chmod +x /usr/local/bin/wrapdocker
 
 RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh
-RUN apt-get update && apt-get install -y -q unzip openjdk-7-jre-headless git lxc-docker
+RUN apt-get update && apt-get install -y -q unzip openjdk-7-jre-headless git
 
 RUN mkdir /etc/service/go-agent
 ADD gocd-agent/go-agent-start.sh /etc/service/go-agent/run
@@ -21,5 +27,8 @@ RUN sed -i -e 's/DAEMON=Y/DAEMON=N/' /etc/default/go-agent /etc/default/go-agent
 
 RUN groupadd docker ; gpasswd -a go docker
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# https://github.com/jpetazzo/dind/blob/master/Dockerfile
+VOLUME /var/lib/docker
 
 CMD ["/sbin/my_init"]
